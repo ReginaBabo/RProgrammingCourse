@@ -150,3 +150,79 @@ rownames(fin)
 rownames(fin) <- NULL
 rownames(fin)
 
+#Replacing missing data - Factual analysis:
+fin[!complete.cases(fin),]
+fin[is.na(fin$State),]
+
+fin[(is.na(fin$State) & fin$City == 'New York'),'State'] <- 'NY'
+fin[(is.na(fin$State) & fin$City == 'San Francisco'),'State'] <- 'CA'
+
+#Replacing missing data - Median imputation method:
+fin[!complete.cases(fin),]
+
+mean(fin[fin$Industry=='Retail' & !is.na(fin$Employees),'Employees'])
+mean(fin[fin$Industry=='Retail','Employees'], na.rm=TRUE)
+
+median(fin[fin$Industry=='Retail' & !is.na(fin$Employees),'Employees'])
+med_empl_retail <- median(fin[fin$Industry=='Retail','Employees'], na.rm=TRUE)
+med_empl_retail
+
+fin[is.na(fin$Employees) & fin$Industry=='Retail',]
+fin[is.na(fin$Employees) & fin$Industry=='Retail', 'Employees'] <- med_empl_retail
+
+med_empl_finserv <- median(fin[fin$Industry=='Financial Services','Employees'], na.rm=TRUE)
+med_empl_finserv
+
+fin[is.na(fin$Employees) & fin$Industry=='Financial Services',]
+fin[is.na(fin$Employees) & fin$Industry=='Financial Services','Employees'] <- med_empl_finserv
+
+fin[!complete.cases(fin),]
+
+#Growth:
+med_growth_constr <- median(fin[fin$Industry=='Construction','Growth'], na.rm=TRUE)
+med_growth_constr
+
+fin[is.na(fin$Growth) & fin$Industry=='Construction','Growth'] <- med_growth_constr
+
+fin[!complete.cases(fin),]
+
+#Revenue:
+med_rev_constr <- median(fin[fin$Industry=='Construction','Revenue'], na.rm=TRUE)
+med_rev_constr
+
+fin[is.na(fin$Revenue) & fin$Industry=='Construction','Revenue'] <- med_rev_constr
+
+#Expenses:
+med_exp_constr <- median(fin[fin$Industry=='Construction', 'Expenses'], na.rm=TRUE)
+med_exp_constr
+
+fin[is.na(fin$Expenses) & fin$Industry=='Construction' & is.na(fin$Expenses),'Expenses'] <- med_exp_constr
+
+fin[!complete.cases(fin),]
+
+#Replacing missing data - Deriving values method:
+#Profit = Revenue - Expenses
+#Expenses = Revenue - Profit
+
+fin[is.na(fin$Profit),'Profit'] <- (fin[is.na(fin$Profit),'Revenue'] - fin[is.na(fin$Profit),'Expenses'])
+fin[!complete.cases(fin),]
+
+fin[is.na(fin$Expenses), 'Expenses'] <- (fin[is.na(fin$Expenses), 'Revenue'] - fin[is.na(fin$Expenses), 'Profit'])
+fin[!complete.cases(fin),]
+
+#Visualization:
+library(ggplot2)
+
+#A scatterplot classified by industry showing revenue, expenses, profit
+p <- ggplot(data=fin)
+p
+p + geom_point(aes(x=Revenue, y=Expenses, colour=Industry, size=Profit))
+
+#A scatterplot that includes industry trends for the expenses~revenue relationship
+d <- ggplot(data=fin, aes(x=Revenue, y=Expenses, colour=Industry))
+d + geom_point() + geom_smooth(fill=NA, size=1.2)
+
+#Boxplot showing growth by industry:
+f <- ggplot(data=fin, aes(x=Industry, y=Growth, colour=Industry))
+f + geom_boxplot(size = 1)
+f + geom_jitter() + geom_boxplot(size = 1, alpha=0.5, outlier.color=NA)
