@@ -215,7 +215,6 @@ library(ggplot2)
 
 #A scatterplot classified by industry showing revenue, expenses, profit
 p <- ggplot(data=fin)
-p
 p + geom_point(aes(x=Revenue, y=Expenses, colour=Industry, size=Profit))
 
 #A scatterplot that includes industry trends for the expenses~revenue relationship
