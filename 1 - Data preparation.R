@@ -5,7 +5,7 @@
 
 #Set current directory:
 getwd()
-setwd("C:/Users/Sergio/Workspace/RStudio/RProgrammingCourse/data")
+setwd("./RProgrammingCourse/data")
 getwd()
 
 #Read data file:
